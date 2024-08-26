@@ -2,12 +2,12 @@
 
 # 检查是否是 root 账户
 if [[ $EUID != 0 ]];then
-  echo -e " 当前非 root 账号，无法继续操作。" 
+  echo -e "当前非 root 账号，无法继续操作。" 
   exit 1
 fi
 
 # 输入交换内存容量
-read -p " 请输入需要添加的虚拟内存容量(MB): " swap_capacity
+read -p "请输入需要添加的虚拟内存容量(MB): " swap_capacity
 # 创建交换分区文件
 mkdir /swap
 dd if=/dev/zero  of=/swap/swapfile bs=1MB count=$swap_capacity
