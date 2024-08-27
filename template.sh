@@ -28,6 +28,182 @@ init() {
   # xxx
 }
 
+# 检查是否 root 用户登录
+check_root() {
+  if [[ $EUID -ne 0 ]]; then
+    log "ERROR" "Fatal error: Please run this script with root privilege!\n"
+    exit 1
+  fi
+}
+
+# 检查操作系统类型
+check_os() {
+  OS="$(uname)"
+  case $OS in
+    Linux)
+      OS='linux'
+      ;;
+    FreeBSD)
+      OS='freebsd'
+      ;;
+    NetBSD)
+      OS='netbsd'
+      ;;
+    OpenBSD)
+      OS='openbsd'
+      ;;  
+    Darwin)
+      OS='osx'
+      binTgtDir=/usr/local/bin
+      man1TgtDir=/usr/local/share/man/man1
+      ;;
+    SunOS)
+      OS='solaris'
+      log "ERROR" "当前操作系统不支持"
+      exit 1
+      ;;
+    *)
+      log "ERROR" "当前操作系统不支持"
+      exit 1
+      ;;
+  esac
+}
+
+check_os_release() {
+  # Check OS and set release variable
+  if [[ -f /etc/os-release ]]; then
+      source /etc/os-release
+      RELEASE=$ID
+  elif [[ -f /usr/lib/os-release ]]; then
+      source /usr/lib/os-release
+      RELEASE=$ID
+  else
+      log "ERROR" "Failed to check the system OS, please contact the author!"
+      exit 1
+  fi
+  log "INFO" "The OS release is: $RELEASE"
+}
+
+# 检查操作系统版本
+check_os_version() {
+  OS_VERSION=$(grep -i version_id /etc/os-release | cut -d \" -f2 | cut -d . -f1)
+  if [[ "${RELEASE}" == "arch" ]]; then
+      log "INFO" "Your OS is Arch Linux"
+  elif [[ "${RELEASE}" == "parch" ]]; then
+      log "INFO" "Your OS is Parch linux"
+  elif [[ "${RELEASE}" == "manjaro" ]]; then
+      log "INFO" "Your OS is Manjaro"
+  elif [[ "${RELEASE}" == "armbian" ]]; then
+      log "INFO" "Your OS is Armbian"
+  elif [[ "${RELEASE}" == "opensuse-tumbleweed" ]]; then
+      log "INFO" "Your OS is OpenSUSE Tumbleweed"
+  elif [[ "${RELEASE}" == "centos" ]]; then
+      if [[ ${OS_VERSION} -lt 8 ]]; then
+          log "ERROR" "Please use CentOS 8 or higher!\n"
+          exit 1
+      fi
+  elif [[ "${RELEASE}" == "ubuntu" ]]; then
+      if [[ ${OS_VERSION} -lt 20 ]]; then
+          log "ERROR" "Please use Ubuntu 20 or higher version!\n"
+          exit 1
+      fi
+  elif [[ "${RELEASE}" == "fedora" ]]; then
+      if [[ ${OS_VERSION} -lt 36 ]]; then
+          log "ERROR" "Please use Fedora 36 or higher version!\n"
+          exit 1
+      fi
+  elif [[ "${RELEASE}" == "debian" ]]; then
+      if [[ ${OS_VERSION} -lt 11 ]]; then
+          log "ERROR" "Please use Debian 11 or higher!\n"
+          exit 1
+      fi
+  elif [[ "${RELEASE}" == "almalinux" ]]; then
+      if [[ ${OS_VERSION} -lt 9 ]]; then
+          log "ERROR" "Please use AlmaLinux 9 or higher!\n"
+          exit 1
+      fi
+  elif [[ "${RELEASE}" == "rocky" ]]; then
+      if [[ ${OS_VERSION} -lt 9 ]]; then
+          log "ERROR" "Please use Rocky Linux 9 or higher!\n"
+          exit 1
+      fi
+  elif [[ "${RELEASE}" == "oracle" ]]; then
+      if [[ ${OS_VERSION} -lt 8 ]]; then
+          log "ERROR" "Please use Oracle Linux 8 or higher!\n"
+          exit 1
+      fi
+  else
+      log "ERROR" "Your operating system is not supported by this script.\n"
+      log "INFO" "Please ensure you are using one of the following supported operating systems:"
+      log "INFO" "- Ubuntu 20.04+"
+      log "INFO" "- Debian 11+"
+      log "INFO" "- CentOS 8+"
+      log "INFO" "- Fedora 36+"
+      log "INFO" "- Arch Linux"
+      log "INFO" "- Parch Linux"
+      log "INFO" "- Manjaro"
+      log "INFO" "- Armbian"
+      log "INFO" "- AlmaLinux 9+"
+      log "INFO" "- Rocky Linux 9+"
+      log "INFO" "- Oracle Linux 8+"
+      log "INFO" "- OpenSUSE Tumbleweed"
+      exit 1
+  fi
+}
+
+# 检查 CPU 架构
+check_cpu_arch() {
+  CPU_ARCH="$(uname -m)"
+  case "$CPU_ARCH" in
+    x86_64|amd64)
+      CPU_ARCH='amd64'
+      ;;
+    i?86|x86)
+      CPU_ARCH='386'
+      ;;
+    aarch64|arm64)
+      CPU_ARCH='arm64'
+      ;;
+    armv7*)
+      CPU_ARCH='arm-v7'
+      ;;
+    armv6*)
+      CPU_ARCH='arm-v6'
+      ;;
+    arm*)
+      CPU_ARCH='arm'
+      ;;
+    *)
+      log "ERROR" '当前 CPU 架构不支持'
+      exit 1
+      ;;
+  esac
+}
+
+# 安装基础软件
+install_base() {
+  case "${release}" in
+  ubuntu | debian | armbian)
+    apt-get update && apt-get install -y -q wget curl tar tzdata
+    ;;
+  centos | almalinux | rocky | oracle)
+    yum -y update && yum install -y -q wget curl tar tzdata
+    ;;
+  fedora)
+    dnf -y update && dnf install -y -q wget curl tar tzdata
+    ;;
+  arch | manjaro | parch)
+    pacman -Syu && pacman -Syu --noconfirm wget curl tar tzdata
+    ;;
+  opensuse-tumbleweed)
+    zypper refresh && zypper -q install -y wget curl tar timezone
+    ;;
+  *)
+    apt-get update && apt install -y -q wget curl tar tzdata
+    ;;
+  esac
+}
+
 # 打印日志
 log() {
   local timestamp=$(date +"%Y-%m-%d %H:%M:%S")
