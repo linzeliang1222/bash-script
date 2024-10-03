@@ -7,6 +7,7 @@ mkdir -p ${CURRENT_DIR}/tmp
 DATETIME_1=$(date +"%Y%m%d_%H%M%S")
 DATETIME_2=$(date +"%Y-%m-%d %H:%M:%S")
 LOG_FILE_PATH=${CURRENT_DIR}/logs/backup.log
+SERVER_IP=$(curl -4 -s ip.sb)
 SERVER_IP_STR="${SERVER_IP//./_}"
 UPLOAD_PATH="/${SERVER_ID}-${SERVER_NAME}/${SERVER_IP_STR}/"
 COMPRESS_FILE_PATH=${CURRENT_DIR}/tmp/backup-${SERVER_IP_STR}-${DATETIME_1}.7z
