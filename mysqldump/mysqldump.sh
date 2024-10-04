@@ -67,7 +67,7 @@ backup() {
     local backup_filename=mysqldump-${database}-${DATETIME}.sql
     
     # 备份为 SQL 文件
-    docker exec mysql mysqldump --databases ${database} > "${backup_dir}/${backup_filename}"
+    docker exec mysql mysqldump --login-path=dumper --databases ${database} > "${backup_dir}/${backup_filename}"
 }
 
 backup_all() {
@@ -89,7 +89,7 @@ backup_all() {
         local backup_filename=mysqldump-${database}-${DATETIME}.sql
     
         # 备份为 SQL 文件
-        docker exec mysql mysqldump --databases ${database} > "${backup_dir}/${backup_filename}"
+        docker exec mysql mysqldump --login-path=dumper --databases ${database} > "${backup_dir}/${backup_filename}"
         
         # 获取备份数量，如果数量小于 ${MIN_FILES} 不进行清理
         local file_num=$(find ${backup_dir} -maxdepth 1 -type f | wc -l)
