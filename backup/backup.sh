@@ -9,7 +9,7 @@ DATETIME_2=$(date +"%Y-%m-%d %H:%M:%S")
 LOG_FILE_PATH=${CURRENT_DIR}/logs/backup.log
 SERVER_IP=$(curl -4 -s ip.sb)
 SERVER_IP_STR="${SERVER_IP//./_}"
-UPLOAD_PATH="/${SERVER_ID}-${SERVER_NAME}/${SERVER_IP_STR}/"
+UPLOAD_PATH="/${SERVER_NAME}/${SERVER_IP_STR}/"
 COMPRESS_FILE_PATH=${CURRENT_DIR}/tmp/backup-${SERVER_IP_STR}-${DATETIME_1}.7z
 # 获取多个备份路径
 OLD_IFS=$IFS
@@ -147,9 +147,9 @@ TAKE=$(( END_TIME - START_TIME ))
 COMPRESS_FILE_SIZE=$(du -sk ${COMPRESS_FILE_PATH} | awk '{printf "%.2f", $1/1024}')
 delete_compress_file
 if [ $? -ne 0 ]; then
-    send_message "备份任务执行完成 (^_^)\n\nID：${SERVER_ID}\n名称：${SERVER_NAME}\n服务器：${SERVER_IP}\n备份时间：${DATETIME_2}\n备份路径：${TARGET_PATH_LIST}\n备份耗时：${TAKE} s\n备份大小：${COMPRESS_FILE_SIZE} MB\n注意：备份压缩文件未清理成功"
+    send_message "备份任务执行完成 (^_^)\n\n名称：${SERVER_NAME}\n服务器：${SERVER_IP}\n备份时间：${DATETIME_2}\n备份路径：${TARGET_PATH_LIST}\n备份耗时：${TAKE} s\n备份大小：${COMPRESS_FILE_SIZE} MB\n注意：备份压缩文件未清理成功"
 else
-    send_message "备份任务执行完成 (^_^)\n\nID：${SERVER_ID}\n名称：${SERVER_NAME}\n服务器：${SERVER_IP}\n备份时间：${DATETIME_2}\n备份路径：${TARGET_PATH_LIST}\n备份耗时：${TAKE} s\n备份大小：${COMPRESS_FILE_SIZE} MB"
+    send_message "备份任务执行完成 (^_^)\n\n名称：${SERVER_NAME}\n服务器：${SERVER_IP}\n备份时间：${DATETIME_2}\n备份路径：${TARGET_PATH_LIST}\n备份耗时：${TAKE} s\n备份大小：${COMPRESS_FILE_SIZE} MB"
 fi
 
 log "INFO" "----------备份任务执行完成----------"
