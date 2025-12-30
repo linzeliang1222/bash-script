@@ -53,7 +53,7 @@ systemctl enable docker
 
 # 创建默认网络
 echo "正在创建默认网络..."
-docker network create --subnet=172.18.0.0/16 my_network
+docker network create --subnet=172.18.0.0/16 --ipv6 --subnet=fd00:2::/80 my_network
 
 echo "Docker 安装完成！"
 echo "请注销并重新登录以使组更改生效。"
